@@ -20,4 +20,5 @@ public class UserResponse {
     private Integer annualLeaveDays;
     private Boolean isActive;
     private LocalDateTime createdAt;
+    private String initialPassword;
 }

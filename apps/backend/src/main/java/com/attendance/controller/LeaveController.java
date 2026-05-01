@@ -80,6 +80,14 @@ public class LeaveController {
         return ResponseEntity.ok(ApiResponse.success("查詢成功", response));
     }
 
+    @GetMapping("/proxy")
+    public ResponseEntity<ApiResponse<List<LeaveApplicationResponse>>> getProxyTasks(
+            Authentication authentication) {
+        Long userId = getCurrentUserId(authentication);
+        List<LeaveApplicationResponse> response = leaveService.getProxyTasks(userId);
+        return ResponseEntity.ok(ApiResponse.success("查詢成功", response));
+    }
+
     private Long getCurrentUserId(Authentication authentication) {
         return (Long) authentication.getPrincipal();
     }

@@ -80,7 +80,7 @@ attendance/
 | name | VARCHAR(50) | UNIQUE, NOT NULL | 假別名稱 |
 | deductible | BOOLEAN | NOT NULL | 是否扣薪 |
 
-**預設資料**: 年假、事假、病假、補休、特休
+**預設資料**: annual（年假）、personal（事假）、sick（病假）、compensatory（補休）、special（特休）
 
 ### 2.4 leave_balances 表
 | 欄位 | 型態 | 約束 | 說明 |
@@ -141,7 +141,7 @@ attendance/
 | Method | Path | 說明 | 權限 |
 |--------|------|------|------|
 | GET | /api/users | 列出使用者 | ADMIN |
-| POST | /api/users | 新增使用者（觸發 Email） | ADMIN |
+| POST | /api/users | 新增使用者（可選密碼，留空自動產生；回傳含 initialPassword） | ADMIN |
 | PUT | /api/users/{id} | 修改使用者 | ADMIN |
 | DELETE | /api/users/{id} | 停用使用者（soft delete） | ADMIN |
 | GET | /api/users/me | 取得個人資料 | USER |
@@ -163,7 +163,9 @@ attendance/
 | GET | /api/leaves/pending | 待我簽核 | 主管 |
 | PUT | /api/leaves/{id}/approve | 簽核通過 | 主管 |
 | PUT | /api/leaves/{id}/reject | 簽核駁回 | 主管 |
+| PUT | /api/leaves/{id}/cancel | 取消請假（僅 PENDING） | USER |
 | GET | /api/leaves/balance | 請假餘額 | USER |
+| GET | /api/leaves/proxy | 代理任務列表 | 代理人 |
 
 ### 3.5 加班 API
 | Method | Path | 說明 | 權限 |
@@ -212,7 +214,7 @@ attendance/
 | 登入頁 | /login | Public | P1 |
 | 個人資料 | /profile | USER | P1 |
 | 使用者管理 | /admin/users | ADMIN | P1 |
-| 打卡首頁 | / | USER | P2 |
+| 打卡首頁 | /attendance | USER | P2 |
 | 個人出勤紀錄 | /attendance/my | USER | P2 |
 | 全員出勤查詢 | /admin/attendance | ADMIN | P2 |
 | 請假申請 | /leaves/apply | USER | P3 |
@@ -232,7 +234,6 @@ attendance/
 - `useAttendanceStore` — 打卡紀錄、今日狀態
 - `useLeaveStore` — 請假申請、簽核列表、餘額
 - `useOvertimeStore` — 加班申請、簽核列表
-- `useUserStore` — 使用者管理（Admin）
 
 ### 4.3 UI 元件庫
 - 使用 Tailwind CSS 打造一致化 UI
@@ -281,4 +282,10 @@ attendance/
 
 ### 6.4 簽核流程
 - 單層簽核：申請人 → 直屬主管
+- 無主管時：申請人自動設為自己的簽核人（適用於 ADMIN 等無主管角色）
 - 代理人機制：主管請假時，待簽核事項移轉給代理人
+
+### 6.5 使用者建立規則
+- Admin 可指定密碼（留空則自動產生 12 碼隨機密碼）
+- 建立成功後 API 回傳 initialPassword 欄位，供 Admin 轉交給使用者
+- 自動建立當年度所有假別的 leave_balances（年假依 annual_leave_days，事假 7 天，病假 30 天，其餘 0）

@@ -45,8 +45,9 @@ P1 基礎建設與認證 ──→ P2 打卡系統 ──→ P3 請假與簽核 
 - `PUT /api/users/{id}` — 修改使用者資料
 - `DELETE /api/users/{id}` — Soft delete（is_active = false）
 - `GET /api/users/me` — 取得登入者個人資料
-- DTO: UserRequest, UserResponse, UserUpdateRequest
+- DTO: UserRequest（含可選 password）, UserResponse（含 initialPassword）, UserUpdateRequest
 - `@PreAuthorize("hasRole('ADMIN')")` 保護管理 API
+- 建立使用者時自動建立當年度 leave_balances
 - **測試**: CRUD 操作、權限驗證、Email 發送觸發
 
 #### P1-B6: Email 工具
@@ -152,7 +153,7 @@ P1 基礎建設與認證 ──→ P2 打卡系統 ──→ P3 請假與簽核 
 - **測試**: Entity 對應正確
 
 #### P3-B2: 請假類型與額度
-- 初始化 leave_types 預設資料（年假/事假/病假/補休/特休）
+- 初始化 leave_types 預設資料（annual/personal/sick/compensatory/special）
 - 依年度自動建立 leave_balances（年假依 users.annual_leave_days）
 - **測試**: 預設資料正確、額度計算正確
 
@@ -160,13 +161,15 @@ P1 基礎建設與認證 ──→ P2 打卡系統 ──→ P3 請假與簽核 
 - `POST /api/leaves` — 提出請假（含代理人指定）
 - `GET /api/leaves/my` — 我的請假紀錄
 - `GET /api/leaves/balance` — 請假餘額
-- 商業邏輯：天數不可超過剩餘額度、自動計算天數
+- `PUT /api/leaves/{id}/cancel` — 取消請假（僅 PENDING）
+- 商業邏輯：天數不可超過剩餘額度、自動計算天數、無主管時自行簽核
 - **測試**: 申請成功/額度不足/日期衝突
 
 #### P3-B4: 簽核 API
 - `GET /api/leaves/pending` — 待簽核列表
 - `PUT /api/leaves/{id}/approve` — 簽核通過（扣減 leave_balances）
 - `PUT /api/leaves/{id}/reject` — 簽核駁回
+- `GET /api/leaves/proxy` — 代理任務列表
 - 代理人機制：主管請假期間，代理人可代為簽核
 - **測試**: 簽核流程、額度扣減、代理人權限
 

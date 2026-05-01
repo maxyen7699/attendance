@@ -4,7 +4,11 @@ import com.attendance.dto.UserRequest;
 import com.attendance.dto.UserResponse;
 import com.attendance.dto.UserUpdateRequest;
 import com.attendance.entity.User;
+import com.attendance.entity.LeaveType;
+import com.attendance.entity.LeaveBalance;
 import com.attendance.repository.UserRepository;
+import com.attendance.repository.LeaveTypeRepository;
+import com.attendance.repository.LeaveBalanceRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +16,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -24,6 +30,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final LeaveTypeRepository leaveTypeRepository;
+    private final LeaveBalanceRepository leaveBalanceRepository;
 
     @Transactional
     public UserResponse createUser(UserRequest request) {
@@ -34,7 +42,9 @@ public class UserService {
             throw new IllegalArgumentException("Email already exists: " + request.getEmail());
         }
 
-        String rawPassword = generateRandomPassword();
+        String rawPassword = (request.getPassword() != null && !request.getPassword().isBlank())
+                ? request.getPassword()
+                : generateRandomPassword();
 
         User.UserBuilder builder = User.builder()
                 .username(request.getUsername())
@@ -55,6 +65,31 @@ public class UserService {
 
         User user = userRepository.save(builder.build());
 
+        // Auto-create leave balances for current year
+        int year = LocalDate.now().getYear();
+        List<LeaveType> leaveTypes = leaveTypeRepository.findAll();
+        for (LeaveType lt : leaveTypes) {
+            BigDecimal totalDays = BigDecimal.ZERO;
+            if ("annual".equals(lt.getName())) {
+                totalDays = BigDecimal.valueOf(user.getAnnualLeaveDays());
+            } else if ("personal".equals(lt.getName())) {
+                totalDays = BigDecimal.valueOf(7);
+            } else if ("sick".equals(lt.getName())) {
+                totalDays = BigDecimal.valueOf(30);
+            } else {
+                totalDays = BigDecimal.ZERO;
+            }
+            LeaveBalance balance = LeaveBalance.builder()
+                    .user(user)
+                    .leaveType(lt)
+                    .totalDays(totalDays)
+                    .usedDays(BigDecimal.ZERO)
+                    .remainingDays(totalDays)
+                    .year(year)
+                    .build();
+            leaveBalanceRepository.save(balance);
+        }
+
         try {
             emailService.sendNewUserCredentials(user.getEmail(), user.getUsername(), rawPassword);
         } catch (Exception e) {
@@ -62,7 +97,9 @@ public class UserService {
         }
 
         log.info("User created: {}", user.getUsername());
-        return toResponse(user);
+        UserResponse response = toResponse(user);
+        response.setInitialPassword(rawPassword);
+        return response;
     }
 
     @Transactional

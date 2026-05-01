@@ -35,4 +35,6 @@ public class UserRequest {
     private String role;
 
     private Integer annualLeaveDays;
+
+    private String password;
 }

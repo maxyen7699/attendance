@@ -20,6 +20,7 @@ const showModal = ref(false)
 const editingUser = ref<UserRow | null>(null)
 const saving = ref(false)
 const confirmDisable = ref<UserRow | null>(null)
+const createdPassword = ref<string | null>(null)
 
 const form = ref<CreateUserPayload & { password: string }>({
   username: '',
@@ -46,6 +47,7 @@ async function fetchUsers() {
 
 function openCreateModal() {
   editingUser.value = null
+  createdPassword.value = null
   form.value = {
     username: '',
     email: '',
@@ -93,7 +95,8 @@ async function handleSave() {
       }
       await updateUser(editingUser.value.id, payload)
     } else {
-      await createUser(form.value)
+      const res = await createUser(form.value)
+      createdPassword.value = res.data.data?.initialPassword || null
     }
     closeModal()
     await fetchUsers()
@@ -218,6 +221,14 @@ onMounted(fetchUsers)
         </h2>
 
         <form @submit.prevent="handleSave" class="space-y-4">
+          <!-- Show password after creation -->
+          <div v-if="createdPassword" class="rounded-lg bg-yellow-50 border border-yellow-200 p-4">
+            <p class="text-sm font-medium text-yellow-800">使用者已建立！初始密碼：</p>
+            <p class="mt-1 rounded bg-white px-3 py-2 font-mono text-lg text-gray-900 select-all">{{ createdPassword }}</p>
+            <p class="mt-1 text-xs text-yellow-600">請將此密碼交給使用者，關閉後將無法再查看。</p>
+          </div>
+
+          <template v-if="!createdPassword">
           <div v-if="!editingUser">
             <label class="mb-1 block text-sm font-medium text-gray-700">帳號</label>
             <input
@@ -228,12 +239,12 @@ onMounted(fetchUsers)
             />
           </div>
           <div v-if="!editingUser">
-            <label class="mb-1 block text-sm font-medium text-gray-700">密碼</label>
+            <label class="mb-1 block text-sm font-medium text-gray-700">密碼（留空則自動產生）</label>
             <input
               v-model="form.password"
-              type="password"
-              required
+              type="text"
               class="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+              placeholder="留空自動產生隨機密碼"
             />
           </div>
           <div>
@@ -298,6 +309,7 @@ onMounted(fetchUsers)
               />
             </div>
           </div>
+          </template>
 
           <div class="flex justify-end gap-3 pt-2">
             <button
@@ -305,9 +317,10 @@ onMounted(fetchUsers)
               class="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-100"
               @click="closeModal"
             >
-              取消
+              {{ createdPassword ? '關閉' : '取消' }}
             </button>
             <button
+              v-if="!createdPassword"
               type="submit"
               :disabled="saving"
               class="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"

@@ -42,7 +42,7 @@ public class LeaveService {
 
         User approver = user.getSupervisor();
         if (approver == null) {
-            throw new RuntimeException("未設定主管，無法提出請假申請");
+            approver = user;
         }
 
         User agent = null;
@@ -190,6 +190,14 @@ public class LeaveService {
         }
         return leaveBalanceRepository.findByUserIdAndYear(userId, year).stream()
                 .map(this::toBalanceResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<LeaveApplicationResponse> getProxyTasks(Long userId) {
+        return leaveApplicationRepository.findByAgentIdAndStatus(userId, LeaveApplication.LeaveStatus.PENDING)
+                .stream()
+                .map(this::toApplicationResponse)
                 .toList();
     }
 

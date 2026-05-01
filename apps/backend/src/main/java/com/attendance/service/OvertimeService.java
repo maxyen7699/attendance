@@ -32,7 +32,7 @@ public class OvertimeService {
 
         User approver = user.getSupervisor();
         if (approver == null) {
-            throw new RuntimeException("未設定主管，無法提出加班申請");
+            approver = user;
         }
 
         BigDecimal hours = req.getHours();
@@ -101,7 +101,7 @@ public class OvertimeService {
 
         if (compensatoryDays.compareTo(BigDecimal.ZERO) > 0) {
             int year = application.getOvertimeDate().getYear();
-            LeaveType compLeaveType = leaveTypeRepository.findByName("補休")
+            LeaveType compLeaveType = leaveTypeRepository.findByName("compensatory")
                     .orElseThrow(() -> new RuntimeException("補休假別不存在，請先建立"));
 
             LeaveBalance balance = leaveBalanceRepository
