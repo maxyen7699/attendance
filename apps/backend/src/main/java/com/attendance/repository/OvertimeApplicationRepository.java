@@ -12,4 +12,5 @@ public interface OvertimeApplicationRepository extends JpaRepository<OvertimeApp
     List<OvertimeApplication> findByApproverIdAndStatus(Long approverId, OvertimeStatus status);
     List<OvertimeApplication> findByStatus(OvertimeStatus status);
     List<OvertimeApplication> findByOvertimeDateBetweenOrderByOvertimeDateDesc(LocalDate start, LocalDate end);
+    List<OvertimeApplication> findByUserIdAndOvertimeDateBetween(Long userId, LocalDate start, LocalDate end);
 }

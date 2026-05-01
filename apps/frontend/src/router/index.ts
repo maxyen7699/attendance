@@ -93,6 +93,24 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/reports/monthly',
+      name: 'report-monthly',
+      component: () => import('@/views/ReportMonthlyView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/admin/dashboard',
+      name: 'admin-dashboard',
+      component: () => import('@/views/AdminDashboardView.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+      path: '/admin/reports',
+      name: 'admin-reports',
+      component: () => import('@/views/AdminReportsView.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: () => import('@/views/NotFoundView.vue'),

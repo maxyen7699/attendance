@@ -7,6 +7,7 @@ const auth = useAuthStore()
 const route = useRoute()
 const leaveMenuOpen = ref(false)
 const overtimeMenuOpen = ref(false)
+const reportMenuOpen = ref(false)
 
 function handleLogout() {
   auth.logout()
@@ -27,6 +28,14 @@ function toggleOvertimeMenu() {
 
 function closeOvertimeMenu() {
   overtimeMenuOpen.value = false
+}
+
+function toggleReportMenu() {
+  reportMenuOpen.value = !reportMenuOpen.value
+}
+
+function closeReportMenu() {
+  reportMenuOpen.value = false
 }
 </script>
 
@@ -155,6 +164,52 @@ function closeOvertimeMenu() {
                   @click="closeOvertimeMenu"
                 >
                   加班簽核
+                </RouterLink>
+              </div>
+            </div>
+
+            <RouterLink
+              to="/reports/monthly"
+              class="text-gray-600 hover:text-blue-600"
+              active-class="text-blue-600 font-semibold"
+            >
+              個人月報
+            </RouterLink>
+
+            <!-- Report Management Dropdown (Admin only) -->
+            <div v-if="auth.user?.role === 'ADMIN'" class="relative" @mouseleave="closeReportMenu">
+              <button
+                class="inline-flex items-center gap-1 text-gray-600 hover:text-blue-600"
+                :class="{ 'text-blue-600 font-semibold': route.path.startsWith('/admin/dashboard') || route.path.startsWith('/admin/reports') }"
+                @mouseenter="reportMenuOpen = true"
+                @click="toggleReportMenu"
+              >
+                報表管理
+                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                </svg>
+              </button>
+              <div
+                v-show="reportMenuOpen"
+                class="absolute left-0 z-10 mt-2 w-40 origin-top-left rounded-md border border-gray-200 bg-white py-1 shadow-lg"
+                @mouseenter="reportMenuOpen = true"
+                @mouseleave="closeReportMenu"
+              >
+                <RouterLink
+                  to="/admin/dashboard"
+                  class="block px-4 py-2 text-gray-700 hover:bg-gray-50"
+                  active-class="bg-blue-50 text-blue-600"
+                  @click="closeReportMenu"
+                >
+                  管理者 Dashboard
+                </RouterLink>
+                <RouterLink
+                  to="/admin/reports"
+                  class="block px-4 py-2 text-gray-700 hover:bg-gray-50"
+                  active-class="bg-blue-50 text-blue-600"
+                  @click="closeReportMenu"
+                >
+                  統計報表
                 </RouterLink>
               </div>
             </div>
