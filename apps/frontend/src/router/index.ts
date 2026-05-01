@@ -75,6 +75,24 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/overtime/apply',
+      name: 'overtime-apply',
+      component: () => import('@/views/OvertimeApplyView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/overtime/my',
+      name: 'overtime-my',
+      component: () => import('@/views/OvertimeMyView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/overtime/approval',
+      name: 'overtime-approval',
+      component: () => import('@/views/OvertimeApprovalView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: () => import('@/views/NotFoundView.vue'),
