@@ -45,6 +45,36 @@ const router = createRouter({
       meta: { requiresAuth: true, requiresAdmin: true }
     },
     {
+      path: '/leaves/apply',
+      name: 'leave-apply',
+      component: () => import('@/views/LeaveApplyView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/leaves/my',
+      name: 'leave-my',
+      component: () => import('@/views/LeaveMyView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/leaves/approval',
+      name: 'leave-approval',
+      component: () => import('@/views/LeaveApprovalView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/leaves/balance',
+      name: 'leave-balance',
+      component: () => import('@/views/LeaveBalanceView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/leaves/proxy',
+      name: 'leave-proxy',
+      component: () => import('@/views/LeaveProxyView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: () => import('@/views/NotFoundView.vue'),

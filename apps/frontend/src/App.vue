@@ -1,13 +1,23 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
 const route = useRoute()
+const leaveMenuOpen = ref(false)
 
 function handleLogout() {
   auth.logout()
   window.location.href = '/login'
+}
+
+function toggleLeaveMenu() {
+  leaveMenuOpen.value = !leaveMenuOpen.value
+}
+
+function closeLeaveMenu() {
+  leaveMenuOpen.value = false
 }
 </script>
 
@@ -38,6 +48,61 @@ function handleLogout() {
             >
               出勤紀錄
             </RouterLink>
+
+            <!-- Leave Management Dropdown -->
+            <div class="relative" @mouseleave="closeLeaveMenu">
+              <button
+                class="inline-flex items-center gap-1 text-gray-600 hover:text-blue-600"
+                :class="{ 'text-blue-600 font-semibold': route.path.startsWith('/leaves') }"
+                @mouseenter="leaveMenuOpen = true"
+                @click="toggleLeaveMenu"
+              >
+                請假管理
+                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                </svg>
+              </button>
+              <div
+                v-show="leaveMenuOpen"
+                class="absolute left-0 z-10 mt-2 w-40 origin-top-left rounded-md border border-gray-200 bg-white py-1 shadow-lg"
+                @mouseenter="leaveMenuOpen = true"
+                @mouseleave="closeLeaveMenu"
+              >
+                <RouterLink
+                  to="/leaves/apply"
+                  class="block px-4 py-2 text-gray-700 hover:bg-gray-50"
+                  active-class="bg-blue-50 text-blue-600"
+                  @click="closeLeaveMenu"
+                >
+                  請假申請
+                </RouterLink>
+                <RouterLink
+                  to="/leaves/my"
+                  class="block px-4 py-2 text-gray-700 hover:bg-gray-50"
+                  active-class="bg-blue-50 text-blue-600"
+                  @click="closeLeaveMenu"
+                >
+                  我的請假
+                </RouterLink>
+                <RouterLink
+                  to="/leaves/balance"
+                  class="block px-4 py-2 text-gray-700 hover:bg-gray-50"
+                  active-class="bg-blue-50 text-blue-600"
+                  @click="closeLeaveMenu"
+                >
+                  請假餘額
+                </RouterLink>
+                <RouterLink
+                  to="/leaves/approval"
+                  class="block px-4 py-2 text-gray-700 hover:bg-gray-50"
+                  active-class="bg-blue-50 text-blue-600"
+                  @click="closeLeaveMenu"
+                >
+                  簽核管理
+                </RouterLink>
+              </div>
+            </div>
+
             <RouterLink
               to="/profile"
               class="text-gray-600 hover:text-blue-600"
