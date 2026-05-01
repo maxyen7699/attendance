@@ -32,6 +32,13 @@ function handleLogout() {
               打卡
             </RouterLink>
             <RouterLink
+              to="/attendance/my"
+              class="text-gray-600 hover:text-blue-600"
+              active-class="text-blue-600 font-semibold"
+            >
+              出勤紀錄
+            </RouterLink>
+            <RouterLink
               to="/profile"
               class="text-gray-600 hover:text-blue-600"
               active-class="text-blue-600 font-semibold"
@@ -45,6 +52,14 @@ function handleLogout() {
               active-class="text-blue-600 font-semibold"
             >
               使用者管理
+            </RouterLink>
+            <RouterLink
+              v-if="auth.user?.role === 'ADMIN'"
+              to="/admin/attendance"
+              class="text-gray-600 hover:text-blue-600"
+              active-class="text-blue-600 font-semibold"
+            >
+              出勤管理
             </RouterLink>
           </div>
         </div>
