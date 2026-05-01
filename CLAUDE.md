@@ -110,7 +110,7 @@ This file provides essential guidance to Claude Code (claude.ai/code) when worki
 
 ### 🎯 技術棧
 - **後端**: Spring Boot (Java 17+)
-- **前端**: React + Vite + Tailwind CSS + Zustand
+- **前端**: Vue 3 + Vite + Tailwind CSS + Pinia
 - **架構**: Monorepo (apps/frontend + apps/backend)
 
 ### 🎯 **DEVELOPMENT STATUS**
@@ -125,7 +125,7 @@ This file provides essential guidance to Claude Code (claude.ai/code) when worki
 # Backend (Spring Boot)
 cd apps/backend && ./mvnw spring-boot:run
 
-# Frontend (React + Vite)
+# Frontend (Vue 3 + Vite)
 cd apps/frontend && npm run dev
 ```
 
